@@ -31,7 +31,7 @@ class ShoppingListScreen extends StatefulWidget {
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
   final TextEditingController searchController = TextEditingController();
 
-  void _showItemFilters() {
+  void _showItemFilters(ShoppingItemCubit cubit) {
     showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,
@@ -39,6 +39,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       context: context,
       builder: (context) => ItemFilters(
         shoppingItems: widget.shoppingList.shoppingItems,
+        shoppingItemCubit: cubit,
       ),
     );
   }
@@ -84,8 +85,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               return const Loader();
             }
 
-            final groupedLists =
-                context.read<ShoppingItemCubit>().categorizedItems;
+            final shoppingItemsUi = state.shoppingItemsUi;
 
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
@@ -102,7 +102,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                       ),
                       const SizedBox(width: 10),
                       IconButton.outlined(
-                        onPressed: _showItemFilters,
+                        onPressed: () {
+                          _showItemFilters(context.read<ShoppingItemCubit>());
+                        },
                         icon: const Icon(FeatherIcons.sliders),
                         style: IconButton.styleFrom(
                           minimumSize: const Size(48, 48),
@@ -117,44 +119,44 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                     ],
                   ),
                   const SizedBox(height: 30),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: groupedLists.length,
-                    itemBuilder: (context, index) {
-                      Category category = groupedLists.keys.elementAt(index);
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: shoppingItemsUi.length,
+                      itemBuilder: (context, index) {
+                        Category category = shoppingItemsUi[index].category;
 
-                      List<ShoppingItem> items = groupedLists[category] ?? [];
+                        List<ShoppingItem> items =
+                            shoppingItemsUi[index].shoppingItems;
 
-                      final totalPrice = context
-                          .read<ShoppingItemCubit>()
-                          .getTotalPrice(items);
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${category.value} | ${totalPrice.inMoneyFormat()}',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppPalette.grey3,
-                                    ),
-                          ),
-                          const SizedBox(height: 10),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: items.length,
-                            itemBuilder: (context, index) => Padding(
-                              padding: const EdgeInsets.only(bottom: 25),
-                              child: ShoppingItemCard(
-                                shoppingItem: items[index],
-                                shoppingListId: widget.shoppingList.id,
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${category.value} | ${shoppingItemsUi[index].totalPrice.inMoneyFormat()}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: AppPalette.grey3,
+                                  ),
+                            ),
+                            const SizedBox(height: 10),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: items.length,
+                              itemBuilder: (context, index) => Padding(
+                                padding: const EdgeInsets.only(bottom: 25),
+                                child: ShoppingItemCard(
+                                  shoppingItem: items[index],
+                                  shoppingListId: widget.shoppingList.id,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      );
-                    },
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

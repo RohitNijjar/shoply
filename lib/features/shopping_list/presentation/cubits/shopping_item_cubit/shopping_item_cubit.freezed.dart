@@ -17,6 +17,9 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$ShoppingItemState {
   List<ShoppingItem> get shoppingItems => throw _privateConstructorUsedError;
+  List<ShoppingItemUi> get shoppingItemsUi =>
+      throw _privateConstructorUsedError;
+  ShoppingItemFilters? get filters => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isFailure => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
@@ -35,6 +38,8 @@ abstract class $ShoppingItemStateCopyWith<$Res> {
   @useResult
   $Res call(
       {List<ShoppingItem> shoppingItems,
+      List<ShoppingItemUi> shoppingItemsUi,
+      ShoppingItemFilters? filters,
       bool isLoading,
       bool isFailure,
       bool isSuccess,
@@ -55,6 +60,8 @@ class _$ShoppingItemStateCopyWithImpl<$Res, $Val extends ShoppingItemState>
   @override
   $Res call({
     Object? shoppingItems = null,
+    Object? shoppingItemsUi = null,
+    Object? filters = freezed,
     Object? isLoading = null,
     Object? isFailure = null,
     Object? isSuccess = null,
@@ -65,6 +72,14 @@ class _$ShoppingItemStateCopyWithImpl<$Res, $Val extends ShoppingItemState>
           ? _value.shoppingItems
           : shoppingItems // ignore: cast_nullable_to_non_nullable
               as List<ShoppingItem>,
+      shoppingItemsUi: null == shoppingItemsUi
+          ? _value.shoppingItemsUi
+          : shoppingItemsUi // ignore: cast_nullable_to_non_nullable
+              as List<ShoppingItemUi>,
+      filters: freezed == filters
+          ? _value.filters
+          : filters // ignore: cast_nullable_to_non_nullable
+              as ShoppingItemFilters?,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -95,6 +110,8 @@ abstract class _$$ShoppingItemStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {List<ShoppingItem> shoppingItems,
+      List<ShoppingItemUi> shoppingItemsUi,
+      ShoppingItemFilters? filters,
       bool isLoading,
       bool isFailure,
       bool isSuccess,
@@ -113,6 +130,8 @@ class __$$ShoppingItemStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? shoppingItems = null,
+    Object? shoppingItemsUi = null,
+    Object? filters = freezed,
     Object? isLoading = null,
     Object? isFailure = null,
     Object? isSuccess = null,
@@ -123,6 +142,14 @@ class __$$ShoppingItemStateImplCopyWithImpl<$Res>
           ? _value._shoppingItems
           : shoppingItems // ignore: cast_nullable_to_non_nullable
               as List<ShoppingItem>,
+      shoppingItemsUi: null == shoppingItemsUi
+          ? _value._shoppingItemsUi
+          : shoppingItemsUi // ignore: cast_nullable_to_non_nullable
+              as List<ShoppingItemUi>,
+      filters: freezed == filters
+          ? _value.filters
+          : filters // ignore: cast_nullable_to_non_nullable
+              as ShoppingItemFilters?,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
@@ -148,11 +175,14 @@ class __$$ShoppingItemStateImplCopyWithImpl<$Res>
 class _$ShoppingItemStateImpl implements _ShoppingItemState {
   const _$ShoppingItemStateImpl(
       {required final List<ShoppingItem> shoppingItems,
+      required final List<ShoppingItemUi> shoppingItemsUi,
+      this.filters,
       required this.isLoading,
       required this.isFailure,
       required this.isSuccess,
       this.message})
-      : _shoppingItems = shoppingItems;
+      : _shoppingItems = shoppingItems,
+        _shoppingItemsUi = shoppingItemsUi;
 
   final List<ShoppingItem> _shoppingItems;
   @override
@@ -162,6 +192,16 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
     return EqualUnmodifiableListView(_shoppingItems);
   }
 
+  final List<ShoppingItemUi> _shoppingItemsUi;
+  @override
+  List<ShoppingItemUi> get shoppingItemsUi {
+    if (_shoppingItemsUi is EqualUnmodifiableListView) return _shoppingItemsUi;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_shoppingItemsUi);
+  }
+
+  @override
+  final ShoppingItemFilters? filters;
   @override
   final bool isLoading;
   @override
@@ -173,7 +213,7 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
 
   @override
   String toString() {
-    return 'ShoppingItemState(shoppingItems: $shoppingItems, isLoading: $isLoading, isFailure: $isFailure, isSuccess: $isSuccess, message: $message)';
+    return 'ShoppingItemState(shoppingItems: $shoppingItems, shoppingItemsUi: $shoppingItemsUi, filters: $filters, isLoading: $isLoading, isFailure: $isFailure, isSuccess: $isSuccess, message: $message)';
   }
 
   @override
@@ -183,6 +223,9 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
             other is _$ShoppingItemStateImpl &&
             const DeepCollectionEquality()
                 .equals(other._shoppingItems, _shoppingItems) &&
+            const DeepCollectionEquality()
+                .equals(other._shoppingItemsUi, _shoppingItemsUi) &&
+            (identical(other.filters, filters) || other.filters == filters) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
             (identical(other.isFailure, isFailure) ||
@@ -196,6 +239,8 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(_shoppingItems),
+      const DeepCollectionEquality().hash(_shoppingItemsUi),
+      filters,
       isLoading,
       isFailure,
       isSuccess,
@@ -212,6 +257,8 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
 abstract class _ShoppingItemState implements ShoppingItemState {
   const factory _ShoppingItemState(
       {required final List<ShoppingItem> shoppingItems,
+      required final List<ShoppingItemUi> shoppingItemsUi,
+      final ShoppingItemFilters? filters,
       required final bool isLoading,
       required final bool isFailure,
       required final bool isSuccess,
@@ -219,6 +266,10 @@ abstract class _ShoppingItemState implements ShoppingItemState {
 
   @override
   List<ShoppingItem> get shoppingItems;
+  @override
+  List<ShoppingItemUi> get shoppingItemsUi;
+  @override
+  ShoppingItemFilters? get filters;
   @override
   bool get isLoading;
   @override

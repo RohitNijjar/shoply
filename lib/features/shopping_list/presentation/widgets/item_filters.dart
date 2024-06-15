@@ -1,41 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:shoply/core/common/values/enums/category.dart';
-import 'package:shoply/core/common/values/enums/sort_by_categories.dart';
+import 'package:shoply/core/common/values/enums/sorting_strategies.dart';
 import 'package:shoply/core/common/widgets/app_check_box.dart';
 import 'package:shoply/core/common/widgets/app_radio_button.dart';
 import 'package:shoply/core/common/widgets/app_switch_toggle.dart';
 import 'package:shoply/core/theme/app_palette.dart';
 import 'package:shoply/features/shopping_list/domain/entities/shopping_item.dart';
+import 'package:shoply/features/shopping_list/presentation/cubits/shopping_item_cubit/shopping_item_cubit.dart';
 
 class ItemFilters extends StatefulWidget {
   const ItemFilters({
     super.key,
     required this.shoppingItems,
+    required this.shoppingItemCubit,
   });
 
   final List<ShoppingItem> shoppingItems;
+  final ShoppingItemCubit shoppingItemCubit;
 
   @override
   State<ItemFilters> createState() => _ItemFiltersState();
 }
 
 class _ItemFiltersState extends State<ItemFilters> {
-  bool _selectAllCategories = true;
-  bool _hidePurchased = false;
-  var _selectedSorting = SortByCategories.categoryNameAsc;
-  late Map<Category, bool> categories = <Category, bool>{
-    for (var value in widget.shoppingItems) value.category: true
-  };
-
-  void _selectSorting(SortByCategories sort) {
-    setState(() {
-      _selectedSorting = sort;
-    });
-  }
+  late bool _selectAllCategories;
 
   @override
   Widget build(BuildContext context) {
-    final showSelectAll = categories.entries.length > 5;
+    final shoppingItemState = widget.shoppingItemCubit.state;
+    _selectAllCategories = shoppingItemState.filters!.selectedCategories.entries
+        .every((item) => item.value);
+    final showSelectAll =
+        shoppingItemState.filters!.selectedCategories.entries.length > 5;
 
     return SizedBox(
       height: double.infinity,
@@ -59,7 +54,7 @@ class _ItemFiltersState extends State<ItemFilters> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: widget.shoppingItemCubit.filter,
                   child: const Text('Apply'),
                 ),
               ],
@@ -82,23 +77,26 @@ class _ItemFiltersState extends State<ItemFilters> {
                       isChecked: _selectAllCategories,
                       onChanged: (newValue) {
                         setState(() {
-                          _selectAllCategories = newValue;
-                          categories.updateAll(
-                              (name, value) => value = _selectAllCategories);
+                          shoppingItemState.filters!.selectedCategories
+                              .updateAll(
+                            (name, value) => value = newValue,
+                          );
                         });
                       },
                       label: 'Select All',
                     ),
-                  ...categories.entries.map((item) {
+                  ...shoppingItemState.filters!.selectedCategories.entries
+                      .map((item) {
                     return AppCheckBox(
                       isChecked: item.value,
                       onChanged: (newValue) {
-                        categories[item.key] = newValue;
                         setState(() {
-                          categories[item.key] = newValue;
+                          shoppingItemState
+                              .filters!.selectedCategories[item.key] = newValue;
 
                           if (showSelectAll) {
-                            final allCategoriesSelected = categories.values
+                            final allCategoriesSelected = shoppingItemState
+                                .filters!.selectedCategories.values
                                 .every((value) => value == true);
 
                             _selectAllCategories = allCategoriesSelected;
@@ -117,12 +115,15 @@ class _ItemFiltersState extends State<ItemFilters> {
                         ),
                   ),
                   const SizedBox(height: 20),
-                  ...SortByCategories.values.map(
-                    (sortItem) => AppRadioButton<SortByCategories>(
-                      selected: _selectedSorting,
+                  ...SortingStrategies.values.map(
+                    (sortItem) => AppRadioButton<SortingStrategies>(
+                      selected: shoppingItemState.filters!.selectedSort,
                       label: sortItem.value,
                       onChanged: (selectedSort) {
-                        _selectSorting(selectedSort);
+                        setState(() {
+                          shoppingItemState.filters!.selectedSort =
+                              selectedSort;
+                        });
                       },
                       value: sortItem,
                     ),
@@ -137,11 +138,11 @@ class _ItemFiltersState extends State<ItemFilters> {
                   ),
                   const SizedBox(height: 20),
                   AppSwitchToggle(
-                      isOn: _hidePurchased,
+                      isOn: shoppingItemState.filters!.hidePurchased,
                       label: 'Hide Purchased',
                       onChanged: (newValue) {
                         setState(() {
-                          _hidePurchased = newValue;
+                          shoppingItemState.filters!.hidePurchased = newValue;
                         });
                       }),
                 ],

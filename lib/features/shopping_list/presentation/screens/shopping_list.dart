@@ -6,6 +6,7 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:shoply/core/common/dialogs/dailogs.dart';
 import 'package:shoply/core/common/extensions/extensions.dart';
 import 'package:shoply/core/common/values/enums/category.dart';
+import 'package:shoply/core/common/widgets/empty_state.dart';
 import 'package:shoply/core/common/widgets/input_field.dart';
 import 'package:shoply/core/common/widgets/loader.dart';
 import 'package:shoply/core/theme/app_palette.dart';
@@ -83,6 +84,16 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           builder: (context, state) {
             if (state.isLoading) {
               return const Loader();
+            }
+
+            if (!state.isLoading &&
+                state.isSuccess &&
+                state.shoppingItemsUi.isEmpty) {
+              return const Expanded(
+                child: EmptyState(
+                  message: 'No lists found',
+                ),
+              );
             }
 
             final shoppingItemsUi = state.shoppingItemsUi;

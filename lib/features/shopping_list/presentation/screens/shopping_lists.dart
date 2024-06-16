@@ -148,9 +148,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
                 if (state.listIsEmpty && !state.isLoading) {
                   content = const Expanded(
-                      child: EmptyState(
-                    message: 'No lists found',
-                  ));
+                    child: EmptyState(
+                      message: 'No lists found',
+                    ),
+                  );
                 }
 
                 return Column(

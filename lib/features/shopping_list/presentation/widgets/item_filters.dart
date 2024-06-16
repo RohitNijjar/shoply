@@ -54,7 +54,10 @@ class _ItemFiltersState extends State<ItemFilters> {
                   ),
                 ),
                 TextButton(
-                  onPressed: widget.shoppingItemCubit.filter,
+                  onPressed: () {
+                    Navigator.pop(context);
+                    widget.shoppingItemCubit.filterAndSort();
+                  },
                   child: const Text('Apply'),
                 ),
               ],

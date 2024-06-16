@@ -7,11 +7,13 @@ class InputField extends StatelessWidget {
     required this.controller,
     required this.hintText,
     this.prefixIcon,
+    this.onChanged,
   });
 
   final TextEditingController controller;
   final String hintText;
   final IconData? prefixIcon;
+  final void Function(String)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,11 @@ class InputField extends StatelessWidget {
           size: 22.0,
         ),
       ),
+      onChanged: (value) {
+        if (onChanged != null) {
+          onChanged!(value);
+        }
+      },
     );
   }
 }

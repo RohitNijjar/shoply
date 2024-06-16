@@ -23,6 +23,8 @@ import 'package:shoply/features/shopping_list/domain/usecases/update_shopping_it
 import 'package:shoply/features/shopping_list/domain/usecases/updated_shopping_list.dart';
 import 'package:shoply/features/shopping_list/presentation/cubits/shopping_item_cubit/shopping_item_cubit.dart';
 import 'package:shoply/features/shopping_list/presentation/cubits/shopping_list_cubit/shopping_list_cubit.dart';
+import 'package:shoply/features/shopping_list/presentation/sorting/shopping_item_sort.dart';
+import 'package:shoply/features/shopping_list/presentation/sorting/shopping_item_sorter.dart';
 import 'package:shoply/firebase_options.dart';
 
 part 'init_dependencies.main.dart';

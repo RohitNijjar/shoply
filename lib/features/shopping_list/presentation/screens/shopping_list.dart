@@ -98,6 +98,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                           controller: searchController,
                           hintText: 'Search',
                           prefixIcon: FeatherIcons.search,
+                          onChanged: (searchTerm) => context
+                              .read<ShoppingItemCubit>()
+                              .search(searchTerm),
                         ),
                       ),
                       const SizedBox(width: 10),

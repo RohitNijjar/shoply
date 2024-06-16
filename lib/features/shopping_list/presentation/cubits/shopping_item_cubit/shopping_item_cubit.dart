@@ -3,12 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shoply/core/common/values/constants/error.dart';
 import 'package:shoply/core/common/values/enums/category.dart';
+import 'package:shoply/core/common/values/enums/sorting_strategies.dart';
 import 'package:shoply/features/shopping_list/domain/entities/shopping_item.dart';
 import 'package:shoply/features/shopping_list/domain/usecases/delete_shopping_item.dart';
 import 'package:shoply/features/shopping_list/domain/usecases/get_shopping_items_by_id.dart';
 import 'package:shoply/features/shopping_list/domain/usecases/update_shopping_item.dart';
 import 'package:shoply/features/shopping_list/presentation/models/shopping_item_filters.dart';
 import 'package:shoply/features/shopping_list/presentation/models/shopping_item_ui.dart';
+import 'package:shoply/features/shopping_list/presentation/sorting/shopping_item_sort.dart';
+import 'package:shoply/features/shopping_list/presentation/sorting/shopping_item_sorter.dart';
 
 part 'shopping_item_state.dart';
 part 'shopping_item_cubit.freezed.dart';
@@ -19,18 +22,21 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
     this.updateShoppingItem,
     this.getShoppingItemsById,
     this.deleteShoppingItem,
+    this.shoppingItemSorter,
   ) : super(ShoppingItemState.initial()) {
     initialize();
   }
 
+  final ShoppingItemSorter shoppingItemSorter;
   final UpdateShoppingItem updateShoppingItem;
   final GetShoppingItemsById getShoppingItemsById;
   final DeleteShoppingItem deleteShoppingItem;
   final String shoppingListId;
+  String _searchTerm = '';
 
   void initialize() async {
     await getItemsById();
-    initializeItemFilters();
+    _initializeItemFilters();
   }
 
   Future<void> getItemsById() async {
@@ -46,7 +52,7 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
         ),
       ),
       (items) {
-        final shoppingItems = getShoppingItemUi(items);
+        final shoppingItems = _sort(items);
         emit(
           state.copyWith(
             isLoading: false,
@@ -65,11 +71,12 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
     ShoppingItem updatedItem,
   ) async {
     final updatedItems = _updateShoppingItems(updatedItem);
-    final shoppingItemUi = getShoppingItemUi(updatedItems);
+    final filteredItems = _filter(updatedItems);
+    final sortedLists = _sort(filteredItems);
     emit(
       state.copyWith(
         shoppingItems: updatedItems,
-        shoppingItemsUi: shoppingItemUi,
+        shoppingItemsUi: sortedLists,
       ),
     );
 
@@ -84,14 +91,15 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
       (failure) {
         final shoppingItems =
             _updateShoppingItems(updatedItem.copyWith(isBought: false));
-        final shoppingItemUi = getShoppingItemUi(shoppingItems);
+        final filteredItems = _filter(shoppingItems);
+        final sortedLists = _sort(filteredItems);
         emit(
           state.copyWith(
             isLoading: false,
             isFailure: true,
             message: failure.message,
             shoppingItems: shoppingItems,
-            shoppingItemsUi: shoppingItemUi,
+            shoppingItemsUi: sortedLists,
           ),
         );
       },
@@ -120,11 +128,12 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
       (failure) =>
           emit(state.copyWith(message: failure.message, isFailure: true)),
       (_) {
-        final shoppingItemUi = getShoppingItemUi(updatedItems);
+        final filteredItems = _filter(updatedItems);
+        final sortedLists = _sort(filteredItems);
         emit(
           state.copyWith(
             shoppingItems: updatedItems,
-            shoppingItemsUi: shoppingItemUi,
+            shoppingItemsUi: sortedLists,
             isSuccess: true,
           ),
         );
@@ -134,58 +143,42 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
     _resetFlags();
   }
 
-  Map<Category, List<ShoppingItem>> _groupItems(
-    List<ShoppingItem> shoppingItems,
-  ) {
-    return shoppingItems.groupBy<Category>((item) => item.category);
-  }
-
-  double getTotalPrice(List<ShoppingItem> items) {
-    return items.map((item) => item.calculatedPrice).sum();
-  }
-
-  List<ShoppingItem> _updateShoppingItems(ShoppingItem updatedItem) {
-    return state.shoppingItems.map((item) {
-      return item.id == updatedItem.id ? updatedItem : item;
-    }).toList();
-  }
-
-  List<ShoppingItemUi> getShoppingItemUi(List<ShoppingItem> shoppingItems) {
-    final groupedItems = _groupItems(shoppingItems);
-    return groupedItems.entries.map((item) {
-      return ShoppingItemUi(
-        category: item.key,
-        shoppingItems: item.value,
-        totalPrice: getTotalPrice(item.value),
-      );
-    }).toList();
-  }
-
-  void initializeItemFilters() {
-    Map<Category, bool> categories = <Category, bool>{
-      for (var value in state.shoppingItems) value.category: true
-    };
-
-    ShoppingItemFilters filters = ShoppingItemFilters.initial(categories);
-    emit(state.copyWith(filters: filters));
-  }
-
-  void filter() {
+  void search(String searchTerm) {
     emit(state.copyWith(isLoading: true));
     try {
-      final selectedCategories = state.filters!.selectedCategories.entries
-          .where((entry) => entry.value)
-          .map((entry) => entry.key)
-          .toList();
+      _searchTerm = searchTerm;
+      final searchedList = _filter(state.shoppingItems);
+      final sortedList = _sort(searchedList);
+      emit(
+        state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          shoppingItemsUi: sortedList,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          isFailure: true,
+          message: Error.generalError,
+        ),
+      );
+    }
+  }
 
-      final filteredItems = state.shoppingItems
-          .where(
-            (item) =>
-                selectedCategories.contains(item.category) &&
-                (!state.filters!.hidePurchased || !item.isBought),
-          )
-          .toList();
-      emit(state.copyWith(isLoading: false, isSuccess: true));
+  void filterAndSort() {
+    emit(state.copyWith(isLoading: true));
+    try {
+      final filteredItems = _filter(state.shoppingItems);
+      final sortedLists = _sort(filteredItems);
+      emit(
+        state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          shoppingItemsUi: sortedLists,
+        ),
+      );
     } catch (e) {
       emit(
         state.copyWith(
@@ -199,7 +192,82 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
     }
   }
 
-  void sort(List<ShoppingItem> shoppingItems) {}
+  double getTotalPrice(List<ShoppingItem> items) {
+    return items.map((item) => item.calculatedPrice).sum();
+  }
+
+  Map<Category, List<ShoppingItem>> _groupItems(
+    List<ShoppingItem> shoppingItems,
+  ) {
+    return shoppingItems.groupBy<Category>((item) => item.category);
+  }
+
+  List<ShoppingItem> _updateShoppingItems(ShoppingItem updatedItem) {
+    return state.shoppingItems.map((item) {
+      return item.id == updatedItem.id ? updatedItem : item;
+    }).toList();
+  }
+
+  List<ShoppingItemUi> _getShoppingItemUi(List<ShoppingItem> shoppingItems) {
+    final groupedItems = _groupItems(shoppingItems);
+    return groupedItems.entries.map((item) {
+      return ShoppingItemUi(
+        category: item.key,
+        shoppingItems: item.value,
+        totalPrice: getTotalPrice(item.value),
+      );
+    }).toList();
+  }
+
+  void _initializeItemFilters() {
+    Map<Category, bool> categories = <Category, bool>{
+      for (var value in state.shoppingItems) value.category: true
+    };
+
+    ShoppingItemFilters filters = ShoppingItemFilters.initial(categories);
+    emit(state.copyWith(filters: filters));
+  }
+
+  List<ShoppingItem> _filter(List<ShoppingItem> shoppingItems) {
+    final selectedCategories = state.filters!.selectedCategories.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+    final filteredItems = shoppingItems
+        .where(
+          (item) =>
+              selectedCategories.contains(item.category) &&
+              (!state.filters!.hidePurchased || !item.isBought) &&
+              (_searchTerm.isNotBlank
+                  ? item.name.toLowerCase().contains(_searchTerm.toLowerCase())
+                  : !_searchTerm.isNotBlank),
+        )
+        .toList();
+    return filteredItems;
+  }
+
+  List<ShoppingItemUi> _sort(List<ShoppingItem> shoppingItems) {
+    final shoppingItemUi = _getShoppingItemUi(shoppingItems);
+    if (state.filters != null) {
+      switch (state.filters!.selectedSort) {
+        case SortingStrategies.categoryNameAsc:
+          shoppingItemSorter.setSorter(SortByCategoryAsc());
+          break;
+        case SortingStrategies.categortNameDesc:
+          shoppingItemSorter.setSorter(SortByCategoryDesc());
+        case SortingStrategies.categoryPriceAsc:
+          shoppingItemSorter.setSorter(SortByTotalPriceAsc());
+        case SortingStrategies.categoryPriceDesc:
+          shoppingItemSorter.setSorter(SortByTotalPriceDesc());
+        default:
+          shoppingItemSorter.setSorter(SortByCategoryAsc());
+      }
+    }
+
+    final sorted = shoppingItemSorter.sort(shoppingItemUi);
+    return sorted;
+  }
 
   void _resetFlags() {
     emit(

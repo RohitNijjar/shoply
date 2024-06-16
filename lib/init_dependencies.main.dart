@@ -95,9 +95,12 @@ void _initShoppingItem() {
     ..registerFactory(() => UpdateShoppingItem(serviceLocator()))
     ..registerFactory(() => GetShoppingItemsById(serviceLocator()))
     ..registerFactory(() => DeleteShoppingItem(serviceLocator()))
+    ..registerFactory<IShoppingItemSort>(() => SortByCategoryAsc())
+    ..registerFactory(() => ShoppingItemSorter(serviceLocator()))
     ..registerFactoryParam<ShoppingItemCubit, String, void>(
       (id, _) => ShoppingItemCubit(
         id,
+        serviceLocator(),
         serviceLocator(),
         serviceLocator(),
         serviceLocator(),

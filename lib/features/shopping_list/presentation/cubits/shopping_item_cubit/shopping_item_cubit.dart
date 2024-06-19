@@ -104,7 +104,12 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
         );
       },
       (unit) => emit(
-        state.copyWith(isLoading: false, isSuccess: true),
+        state.copyWith(
+          isLoading: false,
+          itemUpdated: true,
+          message:
+              '${updatedItem.name} ${updatedItem.isBought ? 'Purchased' : 'Updated'}',
+        ),
       ),
     );
 
@@ -275,6 +280,7 @@ class ShoppingItemCubit extends Cubit<ShoppingItemState> {
         isFailure: false,
         isLoading: false,
         isSuccess: false,
+        itemUpdated: false,
         message: null,
       ),
     );

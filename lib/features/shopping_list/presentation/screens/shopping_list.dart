@@ -80,6 +80,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             if (state.isFailure) {
               Dialogs.showSnackBar(context, state.message!);
             }
+
+            if (state.itemUpdated) {
+              Dialogs.showSnackBar(context, state.message!);
+            }
           },
           builder: (context, state) {
             if (state.isLoading) {

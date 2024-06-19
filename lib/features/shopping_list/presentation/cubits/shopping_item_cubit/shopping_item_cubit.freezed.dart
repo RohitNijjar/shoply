@@ -23,6 +23,7 @@ mixin _$ShoppingItemState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isFailure => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
+  bool get itemUpdated => throw _privateConstructorUsedError;
   String? get message => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -43,6 +44,7 @@ abstract class $ShoppingItemStateCopyWith<$Res> {
       bool isLoading,
       bool isFailure,
       bool isSuccess,
+      bool itemUpdated,
       String? message});
 }
 
@@ -65,6 +67,7 @@ class _$ShoppingItemStateCopyWithImpl<$Res, $Val extends ShoppingItemState>
     Object? isLoading = null,
     Object? isFailure = null,
     Object? isSuccess = null,
+    Object? itemUpdated = null,
     Object? message = freezed,
   }) {
     return _then(_value.copyWith(
@@ -92,6 +95,10 @@ class _$ShoppingItemStateCopyWithImpl<$Res, $Val extends ShoppingItemState>
           ? _value.isSuccess
           : isSuccess // ignore: cast_nullable_to_non_nullable
               as bool,
+      itemUpdated: null == itemUpdated
+          ? _value.itemUpdated
+          : itemUpdated // ignore: cast_nullable_to_non_nullable
+              as bool,
       message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
@@ -115,6 +122,7 @@ abstract class _$$ShoppingItemStateImplCopyWith<$Res>
       bool isLoading,
       bool isFailure,
       bool isSuccess,
+      bool itemUpdated,
       String? message});
 }
 
@@ -135,6 +143,7 @@ class __$$ShoppingItemStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isFailure = null,
     Object? isSuccess = null,
+    Object? itemUpdated = null,
     Object? message = freezed,
   }) {
     return _then(_$ShoppingItemStateImpl(
@@ -162,6 +171,10 @@ class __$$ShoppingItemStateImplCopyWithImpl<$Res>
           ? _value.isSuccess
           : isSuccess // ignore: cast_nullable_to_non_nullable
               as bool,
+      itemUpdated: null == itemUpdated
+          ? _value.itemUpdated
+          : itemUpdated // ignore: cast_nullable_to_non_nullable
+              as bool,
       message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
@@ -180,6 +193,7 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
       required this.isLoading,
       required this.isFailure,
       required this.isSuccess,
+      required this.itemUpdated,
       this.message})
       : _shoppingItems = shoppingItems,
         _shoppingItemsUi = shoppingItemsUi;
@@ -209,11 +223,13 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
   @override
   final bool isSuccess;
   @override
+  final bool itemUpdated;
+  @override
   final String? message;
 
   @override
   String toString() {
-    return 'ShoppingItemState(shoppingItems: $shoppingItems, shoppingItemsUi: $shoppingItemsUi, filters: $filters, isLoading: $isLoading, isFailure: $isFailure, isSuccess: $isSuccess, message: $message)';
+    return 'ShoppingItemState(shoppingItems: $shoppingItems, shoppingItemsUi: $shoppingItemsUi, filters: $filters, isLoading: $isLoading, isFailure: $isFailure, isSuccess: $isSuccess, itemUpdated: $itemUpdated, message: $message)';
   }
 
   @override
@@ -232,6 +248,8 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
                 other.isFailure == isFailure) &&
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
+            (identical(other.itemUpdated, itemUpdated) ||
+                other.itemUpdated == itemUpdated) &&
             (identical(other.message, message) || other.message == message));
   }
 
@@ -244,6 +262,7 @@ class _$ShoppingItemStateImpl implements _ShoppingItemState {
       isLoading,
       isFailure,
       isSuccess,
+      itemUpdated,
       message);
 
   @JsonKey(ignore: true)
@@ -262,6 +281,7 @@ abstract class _ShoppingItemState implements ShoppingItemState {
       required final bool isLoading,
       required final bool isFailure,
       required final bool isSuccess,
+      required final bool itemUpdated,
       final String? message}) = _$ShoppingItemStateImpl;
 
   @override
@@ -276,6 +296,8 @@ abstract class _ShoppingItemState implements ShoppingItemState {
   bool get isFailure;
   @override
   bool get isSuccess;
+  @override
+  bool get itemUpdated;
   @override
   String? get message;
   @override

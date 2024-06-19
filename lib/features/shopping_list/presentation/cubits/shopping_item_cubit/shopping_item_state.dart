@@ -9,6 +9,7 @@ class ShoppingItemState with _$ShoppingItemState {
     required bool isLoading,
     required bool isFailure,
     required bool isSuccess,
+    required bool itemUpdated,
     String? message,
   }) = _ShoppingItemState;
 
@@ -18,5 +19,6 @@ class ShoppingItemState with _$ShoppingItemState {
         isLoading: false,
         isFailure: false,
         isSuccess: false,
+        itemUpdated: false,
       );
 }
